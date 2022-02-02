@@ -1,0 +1,95 @@
+body,#root{
+  width:100%;
+  height:100vh;
+}
+#art{
+  display: table;
+  height:80%;
+  width:60%;
+}
+.header{
+  height:120px;
+  background-color: #1338BE;
+  color:#E0AA3E;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+  font-size:2vw;
+}
+.pixel{
+  display: table-cell;
+  border:1px solid rgba(0, 0, 0, .6);
+  animation-name: pixelreveal;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+  -webkit-animation-fill-mode: forwards; /* Chrome 16+, Safari 4+ */
+  -moz-animation-fill-mode: forwards;    /* FF 5+ */
+  -o-animation-fill-mode: forwards;      /* Not implemented yet */
+  -ms-animation-fill-mode: forwards;     /* IE 10+ */
+  animation-fill-mode: forwards;         /* When the spec is finished */
+}
+
+.screen{
+  height:100%;
+  width:100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.r{
+  height:1.5625%;
+  display: flex;
+  width:100%;
+}
+.functions{
+  display: flex;
+  flex-direction: column;
+  height:80%;
+  width:20%;
+  justify-content: center;
+  align-items: center;
+}
+.buttons{
+  padding:18px;
+  width:75%;
+  margin:9px;
+  background-color: #1338BE;
+  border: 2px solid #E0AA3E;
+  border-radius: 12px;
+  color:#E0AA3E;
+  font-weight: bolder;
+}
+#itemSelect{
+  background-color: #1338BE;
+  border: 2px solid #E0AA3E;
+  border-radius: 12px;
+  color:#E0AA3E;
+  padding:9px;
+  margin:9px;
+}
+#itemSelect:focus{
+   outline: none;
+}
+.addItem{
+  background-color: #1338BE;
+  border: 2px solid #E0AA3E;
+  border-radius: 12px;
+  color:#E0AA3E;
+  padding:9px;
+  margin:9px;
+}
+
+
+.colorpicker{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes pixelreveal {
+  from{width:0px; height:100%;}
+  to{width:1.5625%; height:100%}
+}
