@@ -1,14 +1,30 @@
 body,#root{
   width:100%;
   height:100vh;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+#canvas{
+  width:900px;
+  height:900px;
 }
 #art{
   display: table;
-  height:80%;
-  width:60%;
+  height:calc(75vw*(9/16));
+  width:75vw;
+  border: 1px solid black;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+.position{
+  position: absolute;
+  left:45%;
+  top:15%;
+  font-size:30px;
 }
 .header{
-  height:120px;
+  height:12vh;
   background-color: #1338BE;
   color:#E0AA3E;
   display: flex;
@@ -19,7 +35,11 @@ body,#root{
 }
 .pixel{
   display: table-cell;
-  border:1px solid rgba(0, 0, 0, .6);
+  height:100%;
+  width:1.5625%;
+}
+.pixelplay{
+  opacity: 0;
   animation-name: pixelreveal;
   animation-duration: 1s;
   animation-iteration-count: 1;
@@ -29,7 +49,6 @@ body,#root{
   -ms-animation-fill-mode: forwards;     /* IE 10+ */
   animation-fill-mode: forwards;         /* When the spec is finished */
 }
-
 .screen{
   height:100%;
   width:100%;
@@ -42,24 +61,26 @@ body,#root{
   height:1.5625%;
   display: flex;
   width:100%;
+  position: relative;
 }
+
 .functions{
   display: flex;
   flex-direction: column;
-  height:80%;
-  width:20%;
+  height:80vh;
+  width:10vw;
   justify-content: center;
   align-items: center;
 }
 .buttons{
-  padding:18px;
-  width:75%;
+  padding:1vw;
+  width:calc(16/9);
+  height:calc(9/16);
   margin:9px;
   background-color: #1338BE;
   border: 2px solid #E0AA3E;
   border-radius: 12px;
   color:#E0AA3E;
-  font-weight: bolder;
 }
 #itemSelect{
   background-color: #1338BE;
@@ -90,6 +111,6 @@ body,#root{
 }
 
 @keyframes pixelreveal {
-  from{width:0px; height:100%;}
-  to{width:1.5625%; height:100%}
+  from{opacity:0}
+  to{opacity:1}
 }

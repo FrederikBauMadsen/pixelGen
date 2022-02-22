@@ -1,5 +1,5 @@
-import react from 'react'
-import {crabOutline, crabMeat, staticCrabArray, crabEyesBlack, crabEyesGrey, crabEyesWhite, crabEyesColor, crabMouth} from '../crabConstants.js'
+
+import {crabOutline, crabMeat, crabEyesBlack, crabEyesGrey, crabEyesWhite, crabEyesColor, crabMouth} from '../crabConstants.js'
   //generate the base crab
 export default function staticCrab(x,randomEyes){
       if(crabOutline.includes(x.id)){

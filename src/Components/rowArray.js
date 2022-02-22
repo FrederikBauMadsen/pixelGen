@@ -1,4 +1,4 @@
-import react from 'react'
+
 import { saveAs } from 'file-saver';
 //split 4096 array into 64x64 arrays
 export default function rowArray (items) {

@@ -1,4 +1,4 @@
-import react from 'react'
+
 
 export default function Options({options}){
   return (

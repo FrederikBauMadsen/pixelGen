@@ -1,4 +1,4 @@
-import react from 'react'
+
 import rowArray from './rowArray.js'
 //download full current canvas as json file
 export default function downloadCanvas(){

@@ -1,4 +1,4 @@
-import react from 'react'
+
 //apply or remove 1px border
 export default function applyBorder(){
     var divs = document.getElementsByClassName('pixel');

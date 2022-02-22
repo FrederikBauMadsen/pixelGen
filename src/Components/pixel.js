@@ -1,9 +1,9 @@
-import react, {useState, useEffect} from 'react'
+
 import {white} from '../figures.js'
 
 
-function Pixel({getColor}) {
-  const [array, setArray] = useState([])
+function Pixel({getColor, getPos}) {
+  var array = []
 
   const num = white.length-1;
 
@@ -11,11 +11,11 @@ function Pixel({getColor}) {
 
         var list;
 
-        array.push(white[i].map((pixel, index )=><div  key={i*64 + index}  onClick={getColor} id={i*64 + index} className="pixel" style={{backgroundColor: pixel, animationDelay: (i*64 + index)/500 +'s'  }}> </div>))
+        array.push(white[i].map((pixel, index )=><div  key={i*64 + index}  onClick={getColor} onMouseEnter={getPos} id={i*64 + index} className={"pixel"} style={{backgroundColor: pixel}}> </div>))
 
         list = array.map((item, index )=><div  key={i + ' ' +  index} className={"r row" + index} > {item} </div>)
 
-        if(i == num){
+        if(i === num){
           array.length=0
           return(
             <>
