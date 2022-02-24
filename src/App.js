@@ -9,20 +9,59 @@ import downloadCanvas from './Components/downloadCanvas.js'
 import Header from './Components/Header.js'
 import { HexColorPicker } from "react-colorful";
 import {staticCrabArray} from './crabConstants.js'
-//import Canvas from './Components/Canvas.js'
+import {crab64} from './figures.js'
+import Canvas from './Components/Canvas.js'
 var savedArrays = [{}]
 var redoSavedArrays = [{}]
-var lol = 0
 function App() {
   //states
+
+
+  function setCanvas(multiplier){
+    var resolution = 64
+    var totalArrayLength = (resolution*multiplier)*(resolution*multiplier)*4
+    var white = new Uint8ClampedArray(totalArrayLength);
+
+      for(var x = 0; x < resolution; x++){
+        for(var y = 0; y < resolution; y++){
+          var rgb =   crab64[x][y];
+          rgb = rgb.replace(/[^\d,]/g, '').split(',');
+          if(multiplier > 1){
+            var pos1 = multiplier*multiplier*resolution*4*x+(y*8);
+            var pos2 = pos1+4;
+            var pos3 = pos1+((multiplier*multiplier*resolution*4*1)/2);
+            var pos4 = pos3+4;
+            var loop = multiplier
+
+            for(var n = 0; n < multiplier; n++){
+              for(var m = 0; m < multiplier; m++){
+                let pos = (x*resolution*4*multiplier*multiplier)+(y*4*multiplier)+(resolution*multiplier*4*n)+(m*4)
+                white[pos] = (parseInt(rgb[0]))
+                white[pos+1] = (parseInt(rgb[1]))
+                white[pos+2] = (parseInt(rgb[2]))
+                white[pos+3] = (255)
+              }
+            }
+
+          }else{
+            let pos = (x*resolution*4)+(y*4);
+            white[pos] = (parseInt(rgb[0]))
+            white[pos+1] = (parseInt(rgb[1]))
+            white[pos+2] = (parseInt(rgb[2]))
+            white[pos+3] = (255)
+          }
+        }
+      }
+      Canvas(white, resolution, multiplier)
+  }
+
+
   document.addEventListener("keyup", (event) => {
       setTimeout(function(){
         if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)){
-          lol += 1
           setItemArray(savedArrays[savedArrays.length-1])
           redoSavedArrays.push(savedArrays[savedArrays.length-1])
         }
-          console.log(lol)
       },100)
 
 }, { once: true })
@@ -35,7 +74,7 @@ function App() {
   const [copy, setCopy] = useState(false)
   const [hold, setHold] = useState(false)
   const [pos, setPos] = useState('')
-  const [count, setCount] = useState(0)
+  const [multiplier, setMultiplier] = useState(1)
   //runs on render, retrieves items from localStorage
   const drawItemArray = useCallback(() => {
     if(itemArray.length > 0){
@@ -45,14 +84,13 @@ function App() {
   }
   }, [itemArray])
   useEffect(() => {
-
-    //Canvas(count)
+    setCanvas(multiplier)
     drawItemArray()
     setTimeout(function(){
       getItems()
     }, 500)
 
-  },[drawItemArray]);
+  },[drawItemArray, multiplier]);
 
 
     function getPos(e){
@@ -60,17 +98,7 @@ function App() {
       if(draw && hold ){
         setItemArray(itemArray => [...itemArray, pixel]);
       }
-      var coordinateX = String(e.target.id/64)
-      var row = ''
-      if(coordinateX[1] === '.' || !coordinateX[1]){
-        row = coordinateX[0]
-      }
-      else{
-        row = coordinateX[0]+coordinateX[1]
-      }
-      var coordinateY = e.target.id-(row*64)
 
-      setPos(row + ' , ' + coordinateY)
     }
 
     //perform a random animation on the art
@@ -106,8 +134,8 @@ function App() {
     function addItem(){
       var item = document.getElementById('itemSelect').value
       setCurrentItem(items[item])
-      for(var i = 0; i < items[item].data.items.length; i += 1){
-        document.getElementById(items[item].data.items[i].itemId).style.backgroundColor = items[item].data.items[i].itemColor
+      for(var i = 0; i < items[item].data.length; i += 1){
+        document.getElementById(items[item].data[i].itemId).style.backgroundColor = items[item].data[i].itemColor
       }
     }
 
@@ -154,12 +182,12 @@ function App() {
       if(itemArray[n].itemColor !== color){
         itemArray[n].itemColor = color
         changed = true
-        setCount(count+1)
+
       }
     }else{
       setItemArray(itemArray => [...itemArray, pixel]);
       changed = true
-      setCount(count+1)
+
     }
   }
     if(array.length > 0 && changed){
@@ -203,6 +231,7 @@ function drawstate(){
   setDraw(true)
 }
 
+
 //set state to copy
 function copystate(){
   setCopy(true)
@@ -216,29 +245,35 @@ function holdstate(){
   setHold(!hold)
 }
 
-
+var slider = document.getElementById("slider")
+function slide(e){
+  var value = e.target.value
+  setMultiplier(value)
+}
   return (
   <>
   < Header />
   <div className="screen">
-{/*  <canvas id="canvas"></canvas>
-*/}
+  <canvas id="canvas"></canvas>
+
     <>
 
     <div className="functions">
       <button className="buttons" onClick={applyBorder}> Apply Border </button>
       <button className="buttons" onClick={randomEffect}> Random Effect </button>
     </div>
-
+    <div className="slider" id="slider">
+		  <input type="range" min="1" max="14" onChange={slide} />
+	  </div>
     <div className="position">
       pos : {pos}
     </div>
 
-
+{/*
     <div id="art" onMouseDown={holdstate} onMouseUp={holdstate} >
-      <Pixel getColor={setColorCall} getPos={getPos}/>
+      <Pixel getColor={setColorCall} getPos={getPos} white={white} resolution={resolution}/>
     </div>
-
+*/}
     </>
 
 

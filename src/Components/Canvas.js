@@ -1,17 +1,19 @@
 import react, {useState, useEffect} from 'react'
 import img from './13.png'
 
-export default function Canvas(count){
+export default function Canvas(white, resolution, multiplier){
   const timer = ms => new Promise(res => setTimeout(res, ms))
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = 900;
-  canvas.height = 900;
+  canvas.width = resolution*multiplier;
+  canvas.height = resolution*multiplier;
   const image = new Image()
   image.src = img
 
   image.addEventListener('load', async function(){
-    ctx.drawImage(image,0,0,canvas.width,canvas.height);
+    let imageData = new ImageData(white,resolution*multiplier);
+    ctx.putImageData(imageData, 0, 0);
+    {/*
     const data = ctx.getImageData(0,0,canvas.width,canvas.height)
     var backgroundColor = [data.data[0], data.data[1], data.data[2], data.data[3]]
     var backgroundArray = []
@@ -51,7 +53,6 @@ export default function Canvas(count){
 
 
   //bg animation
-
 for(var loop = 0; loop< 150; loop +=1){
   if(loop % 2 === 0){
   var num = Math.floor(Math.random() * 255)
@@ -59,7 +60,7 @@ for(var loop = 0; loop< 150; loop +=1){
   for(var c = 0; c < characterArray.length; c++){
     data.data[((characterArray[c]+1)*4)-rgbapos] = num
   }
-  count = loop
+
   ctx.putImageData(data,0,0)
   await timer(500)
 }
@@ -68,15 +69,15 @@ else{
   var rgba = Math.floor(Math.random() * 4)
   for(var c = 0; c < characterArray.length; c++){
     data.data[((characterArray[c]+1)*4)-rgbapos] = num
-    count = c
+
   }
-  count = loop
+
   ctx.putImageData(data,0,0)
   await timer(500)
 }
 
 }
-
+*/}
 
   //whole pic animation
     {/*for(var b = 0; b < 4; b += 1){
@@ -90,7 +91,7 @@ else{
               data.data[i+rgbapos+l] = num
             }
           }
-          count = b
+
           ctx.putImageData(data,0,0)
           await timer(1)
         }
@@ -103,7 +104,7 @@ else{
               data.data[i+rgbapos+l] = num
             }
           }
-          count = b
+
           ctx.putImageData(data,0,0)
           await timer(1)
         }
@@ -123,7 +124,7 @@ else{
             data.data[i+3]= 80
           }
         }
-        count = a
+
         ctx.putImageData(data,0,0)
         console.log(a)
         await timer(250);
@@ -140,7 +141,7 @@ else{
               data.data[i+3] = 230
             }
           }
-          count = a
+
           ctx.putImageData(data,0,0)
           console.log(a)
           await timer(150);

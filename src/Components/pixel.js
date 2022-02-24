@@ -1,29 +1,26 @@
-
-import {white} from '../figures.js'
-
-
-function Pixel({getColor, getPos}) {
+function Pixel({getColor, getPos, white, resolution}) {
   var array = []
+  const num = resolution-1;
 
-  const num = white.length-1;
+      for (var i = 0; i < white.length; i++){
 
-    for (var i = 0; i < white.length; i++){
+          var list;
 
-        var list;
+          array.push(white[i].map((pixel, index )=><div  key={i*resolution + index}  onClick={getColor} onMouseEnter={getPos} id={i*resolution + index} className={"pixel"} style={{backgroundColor: pixel}}> </div>))
 
-        array.push(white[i].map((pixel, index )=><div  key={i*64 + index}  onClick={getColor} onMouseEnter={getPos} id={i*64 + index} className={"pixel"} style={{backgroundColor: pixel}}> </div>))
+          list = array.map((item, index )=><div  key={i + ' ' +  index} className={"r row" + index} > {item} </div>)
 
-        list = array.map((item, index )=><div  key={i + ' ' +  index} className={"r row" + index} > {item} </div>)
+          if(i === num){
+            array.length=0
+            return(
+              <>
+              {list}
+              </>
+            )
+          }
+      }
 
-        if(i === num){
-          array.length=0
-          return(
-            <>
-            {list}
-            </>
-          )
-        }
-    }
+
 
 
 }

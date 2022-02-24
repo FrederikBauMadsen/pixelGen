@@ -5,15 +5,28 @@ body,#root{
   scrollbar-width: none;  /* Firefox */
 }
 #canvas{
-  width:900px;
-  height:900px;
+  display: flex;
+  border: 1px solid black;
 }
+.slider{
+  position: absolute;
+  top:25%
+}
+
 #art{
   display: table;
   height:calc(75vw*(9/16));
   width:75vw;
   border: 1px solid black;
 }
+@media screen and (max-width: 1000px) {
+  #art{
+    display: table;
+    width:75vw;
+    height:75vh;
+    border: 1px solid black;
+  }
+  }
 ::-webkit-scrollbar {
   display: none;
 }
@@ -36,7 +49,7 @@ body,#root{
 .pixel{
   display: table-cell;
   height:100%;
-  width:1.5625%;
+  width:0.78125%;
 }
 .pixelplay{
   opacity: 0;
@@ -58,7 +71,7 @@ body,#root{
   justify-content: center;
 }
 .r{
-  height:1.5625%;
+  height:0.78125%;
   display: flex;
   width:100%;
   position: relative;
