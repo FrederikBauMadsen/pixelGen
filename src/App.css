@@ -5,18 +5,29 @@ body,#root{
   scrollbar-width: none;  /* Firefox */
 }
 #canvas{
-  display: flex;
-  border: 1px solid black;
+  margin:1%;
+  image-rendering: crisp-edges;
 }
-.slider{
-  position: absolute;
-  top:25%
+
+.preview{
+  z-index: 1;
+  position: fixed;
+  top:2.5vh;
+  left:2.5vw;
+  width:95vw;
+  height:95vh;
+  background-color: white;
+  border-radius:15px;
+  border: 9px solid #1338BE;
+}
+.relative{
+  position:relative;
 }
 
 #art{
   display: table;
   height:calc(75vw*(9/16));
-  width:75vw;
+  width:70vw;
   border: 1px solid black;
 }
 @media screen and (max-width: 1000px) {
@@ -25,6 +36,15 @@ body,#root{
     width:75vw;
     height:75vh;
     border: 1px solid black;
+  }
+  .screen{
+    flex-direction: column !important;
+  }
+  #art{
+     margin-top:12%;
+  }
+  .functions{
+    margin-top: 9%;
   }
   }
 ::-webkit-scrollbar {
@@ -47,9 +67,9 @@ body,#root{
   font-size:2vw;
 }
 .pixel{
-  display: table-cell;
+  border: 1px solid red;
   height:100%;
-  width:0.78125%;
+  width:1.5625%;
 }
 .pixelplay{
   opacity: 0;
@@ -68,10 +88,10 @@ body,#root{
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 .r{
-  height:0.78125%;
+  height:1.5625%;
   display: flex;
   width:100%;
   position: relative;
@@ -80,10 +100,9 @@ body,#root{
 .functions{
   display: flex;
   flex-direction: column;
-  height:80vh;
-  width:10vw;
   justify-content: center;
   align-items: center;
+  width:15vw;
 }
 .buttons{
   padding:1vw;
@@ -94,6 +113,22 @@ body,#root{
   border: 2px solid #E0AA3E;
   border-radius: 12px;
   color:#E0AA3E;
+}
+.itemAdder{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.closePreview{
+  position: absolute;
+  top: 18%;
+  right: 6%;
+}
+.slider{
+  position: absolute;
+  top:25%;
+  right: 6%;
 }
 #itemSelect{
   background-color: #1338BE;

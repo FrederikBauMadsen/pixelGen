@@ -1,19 +1,38 @@
 import react, {useState, useEffect} from 'react'
+import CanvasEffects from './CanvasEffects.js'
 import img from './13.png'
+var canvas = null;
 
-export default function Canvas(white, resolution, multiplier){
-  const timer = ms => new Promise(res => setTimeout(res, ms))
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = resolution*multiplier;
-  canvas.height = resolution*multiplier;
+export function resetCanvas(){
+ canvas = null;
+}
+
+export default function Canvas(white, multiplier){
   const image = new Image()
   image.src = img
+  //const timer = ms => new Promise(res => setTimeout(res, ms))
+  if(canvas === null){
+    canvas = document.getElementById('canvas');
+    canvas.width = 896;
+    canvas.height = 896;
+  }
 
+//if you have your own image
+/*
   image.addEventListener('load', async function(){
-    let imageData = new ImageData(white,resolution*multiplier);
-    ctx.putImageData(imageData, 0, 0);
-    {/*
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').drawImage(image,0,0,64*multiplier,64*multiplier)
+  })*/
+
+//if you painted it in the program
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  let imageData = new ImageData(white,64*multiplier);
+  canvas.getContext('2d').putImageData(imageData, 0, 0);
+
+
+
+
+    /*
     const data = ctx.getImageData(0,0,canvas.width,canvas.height)
     var backgroundColor = [data.data[0], data.data[1], data.data[2], data.data[3]]
     var backgroundArray = []
@@ -77,10 +96,10 @@ else{
 }
 
 }
-*/}
+*/
 
   //whole pic animation
-    {/*for(var b = 0; b < 4; b += 1){
+    /*for(var b = 0; b < 4; b += 1){
 
       if(b % 2 == 0){
         var num = Math.floor(Math.random() * 255)
@@ -109,12 +128,12 @@ else{
           await timer(1)
         }
     }
-  }*/}
+  }*/
 
 
 
     //level up
-    {/*
+    /*
     for(var a = 0; a < 10; a++){
         for(var i = 0; i < data.data.length; i+=4){
           if(a % 2 == 0) {
@@ -146,12 +165,12 @@ else{
           console.log(a)
           await timer(150);
       }
-      */}
+      */
 
 
 
 
 
-  })
+
 
 }

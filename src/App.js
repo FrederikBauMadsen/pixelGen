@@ -1,81 +1,47 @@
 //imports
 import react, {useState, useEffect, useCallback } from 'react'
 import './App.css';
-import Pixel from './Components/pixel.js'
-import Options from './Components/Options.js'
 import staticCrab from './Components/staticCrab.js'
 import applyBorder from './Components/applyBorder.js'
 import downloadCanvas from './Components/downloadCanvas.js'
+import randomEffect from './Components/randomEffect.js'
+import setResize from './Components/imgPreviewer.js'
+import BuilderHTML from './Components/builderHTML.js'
+import PreviewerHTML from './Components/PreviewerHTML.js'
 import Header from './Components/Header.js'
-import { HexColorPicker } from "react-colorful";
 import {staticCrabArray} from './crabConstants.js'
-import {crab64} from './figures.js'
-import Canvas from './Components/Canvas.js'
+import {resetCanvas} from './Components/Canvas.js'
 var savedArrays = [{}]
 var redoSavedArrays = [{}]
 function App() {
-  //states
 
-
-  function setCanvas(multiplier){
-    var resolution = 64
-    var totalArrayLength = (resolution*multiplier)*(resolution*multiplier)*4
-    var white = new Uint8ClampedArray(totalArrayLength);
-
-      for(var x = 0; x < resolution; x++){
-        for(var y = 0; y < resolution; y++){
-          var rgb =   crab64[x][y];
-          rgb = rgb.replace(/[^\d,]/g, '').split(',');
-          if(multiplier > 1){
-            var pos1 = multiplier*multiplier*resolution*4*x+(y*8);
-            var pos2 = pos1+4;
-            var pos3 = pos1+((multiplier*multiplier*resolution*4*1)/2);
-            var pos4 = pos3+4;
-            var loop = multiplier
-
-            for(var n = 0; n < multiplier; n++){
-              for(var m = 0; m < multiplier; m++){
-                let pos = (x*resolution*4*multiplier*multiplier)+(y*4*multiplier)+(resolution*multiplier*4*n)+(m*4)
-                white[pos] = (parseInt(rgb[0]))
-                white[pos+1] = (parseInt(rgb[1]))
-                white[pos+2] = (parseInt(rgb[2]))
-                white[pos+3] = (255)
-              }
-            }
-
-          }else{
-            let pos = (x*resolution*4)+(y*4);
-            white[pos] = (parseInt(rgb[0]))
-            white[pos+1] = (parseInt(rgb[1]))
-            white[pos+2] = (parseInt(rgb[2]))
-            white[pos+3] = (255)
+{/*  document.addEventListener("keyup", (event) => {
+        setTimeout(function(){
+          if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)){
+            setItemArray(savedArrays[savedArrays.length-1])
+            redoSavedArrays.push(savedArrays[savedArrays.length-1])
           }
-        }
-      }
-      Canvas(white, resolution, multiplier)
-  }
+        },100)
+
+  }, { once: true })*/}
 
 
-  document.addEventListener("keyup", (event) => {
-      setTimeout(function(){
-        if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)){
-          setItemArray(savedArrays[savedArrays.length-1])
-          redoSavedArrays.push(savedArrays[savedArrays.length-1])
-        }
-      },100)
-
-}, { once: true })
-
+  //states
   const [color, setColor] = useState("#b32aa9");
   const [itemArray, setItemArray] = useState([])
   const [items, setItems] = useState([])
-  const [currentItem, setCurrentItem] = useState([])
+  const [currentItem, setCurrentItem] = useState('none')
+  const [beforeCurrentItem, setBeforeCurrentItem] = useState([])
   const [draw, setDraw] = useState(false)
   const [copy, setCopy] = useState(false)
   const [hold, setHold] = useState(false)
+  const [preview64, setPreview64] = useState([])
+  const [preview, setPreview] = useState(false)
+  const [changed, setChanged] = useState(false)
   const [pos, setPos] = useState('')
-  const [multiplier, setMultiplier] = useState(1)
-  //runs on render, retrieves items from localStorage
+  const [multiplier, setMultiplier] = useState(14)
+
+
   const drawItemArray = useCallback(() => {
     if(itemArray.length > 0){
     for(var i = 0; i < itemArray.length; i++){
@@ -83,14 +49,19 @@ function App() {
     }
   }
   }, [itemArray])
+
+
   useEffect(() => {
-    setCanvas(multiplier)
+    if(preview){
+    setResize(multiplier, preview64)
+  }
     drawItemArray()
     setTimeout(function(){
       getItems()
     }, 500)
 
-  },[drawItemArray, multiplier]);
+  },[drawItemArray, multiplier, preview, preview64, changed]);
+
 
 
     function getPos(e){
@@ -98,45 +69,48 @@ function App() {
       if(draw && hold ){
         setItemArray(itemArray => [...itemArray, pixel]);
       }
-
+      let x = Math.trunc(e.target.id/64)
+      let y = e.target.id%64
+      setPos(x + ',' + y)
     }
 
-    //perform a random animation on the art
-    function randomEffect(){
-
-      const divs = document.querySelectorAll('.pixel')
-      var randomDivs = []
-      for(var i = 0; i < divs.length; i+= 1) {
-        randomDivs.push( divs[Math.floor(Math.random() * divs.length)] )
-        divs[i].classList.add("pixeplay")
-      };
-
-      for(var l = 0; l < randomDivs.length; l += 1){
-        randomDivs[l].style.animationDelay = (l*64)/128000 + 's'
-      }
-
-      setTimeout(function () {
-        for(var i = 0; i < divs.length; i+= 1) {
-        divs[i].classList.remove("pixeplay")
-      }
-      }, 4000);
-
-    }
 
     //save the current itemArray
     function saveItem(){
       let fileName = prompt("Enter a name for the file", "");
-      localStorage.setItem(fileName, JSON.stringify(itemArray))
+      localStorage.setItem(fileName, JSON.stringify(itemArray));
     }
 
 
     //add the currently selected item to the canvas
     function addItem(){
-      var item = document.getElementById('itemSelect').value
-      setCurrentItem(items[item])
-      for(var i = 0; i < items[item].data.length; i += 1){
-        document.getElementById(items[item].data[i].itemId).style.backgroundColor = items[item].data[i].itemColor
+      var item = document.getElementById('itemSelect').value;
+      var divs = document.getElementsByClassName('pixel');
+      let pixel;
+      let array =[];
+
+      if(currentItem !== items[item].name){
+              setBeforeCurrentItem([]);
+              setCurrentItem(items[item].name);
+
+              for(var a = 0; a < items[item].data.length; a++ ){
+                  var itemColor = divs[items[item].data[a].itemId].style.backgroundColor
+                  var itemId = items[item].data[a].itemId
+                  pixel = {itemId, itemColor}
+                  array.push(pixel)
+              }
+
+              setBeforeCurrentItem(array);
+
+              if(currentItem !== 'none'){
+                for(var i = 0; i<itemArray.length; i++){
+                  divs[itemArray[i].itemId].style.backgroundColor = beforeCurrentItem[i].itemColor
+                }
+              }
+
+              setItemArray(items[item].data)
       }
+
     }
 
 
@@ -167,7 +141,7 @@ function App() {
   function setColorCall(e){
     var array = []
     var arraynum = []
-    var changed = false
+    setChanged(false);
     let pixel = {itemId:e.target.id, itemColor:color}
     if(copy){  setColor(document.getElementById(e.target.id).style.backgroundColor)}
 
@@ -181,12 +155,12 @@ function App() {
       var n = arraynum.indexOf(e.target.id)
       if(itemArray[n].itemColor !== color){
         itemArray[n].itemColor = color
-        changed = true
+        setChanged(true);
 
       }
     }else{
       setItemArray(itemArray => [...itemArray, pixel]);
-      changed = true
+      setChanged(true);
 
     }
   }
@@ -206,23 +180,42 @@ function App() {
 // random crab
 function spawnCrab(){
   setItemArray([])
+  let randomItemsId = [];
+  let randomItemsColor = [];
+
   var randomEyes = Math.floor(Math.random()*16777215).toString(16);
   var randomBackground = Math.floor(Math.random()*16777215).toString(16);
   var divs = document.getElementsByClassName('pixel');
+  let numbers = [];
 
+  for(var n = 0; n < items.length; n++){
+    let number = Math.floor(Math.random() * items.length);
+    if(!numbers.includes(numbers)){
+      numbers.push(number)
+    }
+  }
+
+  for(var l = 0; l < items.length; l++){
+    for(var i = 0; i < items[l].data.length; i++){
+      if(numbers.includes(l)){
+        randomItemsId.push(items[l].data[i].itemId)
+        randomItemsColor.push(items[l].data[i].itemColor)
+      }
+    }
+  }
   setTimeout(function(){for (var i = 0; i < divs.length ; i += 1) {
 
-    staticCrab(divs[i], randomEyes)
 
-    if(!staticCrabArray.includes(divs[i].id)){
+    staticCrab(divs[i], randomEyes, items, randomItemsId, randomItemsColor)
+
+    if(!staticCrabArray.includes(divs[i].id) && !randomItemsId.includes(divs[i].id)){
     divs[i].style.backgroundColor = '#'+randomBackground;
     }
 
 
 
-  }},500)
+  }},1000)
 
-  randomEffect()
 
 }
 //set state to draw
@@ -236,81 +229,44 @@ function drawstate(){
 function copystate(){
   setCopy(true)
   setDraw(false)
-  console.log(itemArray)
-  console.log(savedArrays)
-  console.log(redoSavedArrays)
 }
 
 function holdstate(){
   setHold(!hold)
-}
+  }
 
-var slider = document.getElementById("slider")
+
+
 function slide(e){
   var value = e.target.value
   setMultiplier(value)
+}
+
+
+function previewer(){
+  resetCanvas()
+    if(preview === false){
+      setPreview64(downloadCanvas())
+    }
+    setPreview(!preview)
 }
   return (
   <>
   < Header />
   <div className="screen">
-  <canvas id="canvas"></canvas>
 
-    <>
-
-    <div className="functions">
-      <button className="buttons" onClick={applyBorder}> Apply Border </button>
-      <button className="buttons" onClick={randomEffect}> Random Effect </button>
-    </div>
-    <div className="slider" id="slider">
-		  <input type="range" min="1" max="14" onChange={slide} />
-	  </div>
-    <div className="position">
-      pos : {pos}
-    </div>
-
-{/*
-    <div id="art" onMouseDown={holdstate} onMouseUp={holdstate} >
-      <Pixel getColor={setColorCall} getPos={getPos} white={white} resolution={resolution}/>
-    </div>
-*/}
-    </>
+  {preview && (
+    <PreviewerHTML slide={slide} previewer={previewer} multiplier={multiplier}/>
+  )}
 
 
 
-  <div className="functions">
-
-    <button className="buttons" name="crab" onClick={spawnCrab}> RANDOM CRAB </button>
-    <button className="buttons" name="white" onClick={Clear}> CLEAR CANVAS </button>
-    <button className="buttons" onClick={downloadCanvas}> DOWNLOAD CANVAS </button>
-    <button className="buttons" onClick={saveItem}> SAVE ITEM </button>
-
-
-    <div>
-      <select id="itemSelect" name="item">
-        <Options options={items} />
-      </select>
-      <button className="addItem" onClick={addItem}> SPAWN ITEM </button>
-    </div>
-
-
-
-
-    <div className="colorpicker">
-      <div className="value" style={{ borderLeftColor: color }}>
-        Current color is {color}
-      </div>
-      <HexColorPicker color={color} onChange={setColor}  />
-      <input type='text' onChange={setColorWithHex} style={{margin:'9px'}}/>
-      <button className="buttons" onClick={drawstate}> draw </button>
-      <button className="buttons" onClick={copystate}> copy </button>
-    </div>
-
-  </div>
+    <BuilderHTML pos={pos} getPos={getPos} applyBorder={applyBorder} randomEffect={randomEffect} previewer={previewer} holdstate={holdstate} setColorCall={setColorCall} spawnCrab={spawnCrab} Clear={Clear} downloadCanvas={downloadCanvas} saveItem={saveItem} items={items} addItem={addItem} color={color} setColor={setColor} drawstate={drawstate} copystate={copystate} setColorWithHex={setColorWithHex} />
 
 
   </div>
   </>
+
   );
 }
 
