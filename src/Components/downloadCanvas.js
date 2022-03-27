@@ -4,7 +4,7 @@ export default function downloadCanvas(){
     var div = document.getElementById('art');
     var divs = div.getElementsByTagName('div');
     var divArray = [];
-    const rows = []
+    var rows = []
     for (var i = 0; i < divs.length; i += 1) {
     if(divs[i].style.backgroundColor){
     divArray.push(divs[i].style.backgroundColor);

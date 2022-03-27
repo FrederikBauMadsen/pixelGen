@@ -1,14 +1,16 @@
 //imports
 import react, {useState, useEffect, useCallback } from 'react'
-import './App.css';
-import staticCrab from './Components/staticCrab.js'
-import applyBorder from './Components/applyBorder.js'
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom"
+import Home from './Components/Home.js'
+import Create from './Components/Create.js'
+import {white} from './figures.js'
 import downloadCanvas from './Components/downloadCanvas.js'
-import randomEffect from './Components/randomEffect.js'
+import applyBorder from './Components/applyBorder.js'
+import './App.css';
+import Header from './Components/Header.js';
+import axios from "axios";
+import staticCrab from './Components/staticCrab.js'
 import setResize from './Components/imgPreviewer.js'
-import BuilderHTML from './Components/builderHTML.js'
-import PreviewerHTML from './Components/PreviewerHTML.js'
-import Header from './Components/Header.js'
 import {staticCrabArray} from './crabConstants.js'
 import {resetCanvas} from './Components/Canvas.js'
 var savedArrays = [{}]
@@ -29,14 +31,20 @@ function App() {
   //states
   const [color, setColor] = useState("#b32aa9");
   const [itemArray, setItemArray] = useState([])
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState([{
+      name:'',
+      category:'',
+      content:[]
+  }])
+
   const [currentItem, setCurrentItem] = useState('none')
   const [beforeCurrentItem, setBeforeCurrentItem] = useState([])
+  const [viewState, setViewState] = useState(false)
   const [draw, setDraw] = useState(false)
   const [copy, setCopy] = useState(false)
   const [hold, setHold] = useState(false)
-  const [preview64, setPreview64] = useState([])
-  const [preview, setPreview] = useState(false)
+  const [preview64, setPreview64] = useState(white)
+  //const [categories, setCategories] = useState([])
   const [changed, setChanged] = useState(false)
   const [pos, setPos] = useState('')
   const [multiplier, setMultiplier] = useState(14)
@@ -52,21 +60,25 @@ function App() {
 
 
   useEffect(() => {
-    if(preview){
-    setResize(multiplier, preview64)
-  }
-    drawItemArray()
+
+    if(viewState){
+      setResize(multiplier, preview64)
+    }else{
+      setTimeout(drawItemArray(),1000)
+    }
+
+
     setTimeout(function(){
       getItems()
     }, 500)
 
-  },[drawItemArray, multiplier, preview, preview64, changed]);
+  },[drawItemArray, multiplier, preview64, changed]);
 
 
 
     function getPos(e){
-      let pixel = {itemId:e.target.id, itemColor:color}
       if(draw && hold ){
+        let pixel = {itemId:e.target.id, itemColor:color}
         setItemArray(itemArray => [...itemArray, pixel]);
       }
       let x = Math.trunc(e.target.id/64)
@@ -76,9 +88,17 @@ function App() {
 
 
     //save the current itemArray
-    function saveItem(){
-      let fileName = prompt("Enter a name for the file", "");
-      localStorage.setItem(fileName, JSON.stringify(itemArray));
+    function saveItem(e){
+      let name = prompt("Enter a name for the file", "");
+      let category = prompt("what category should the item be added to?", "");
+
+      const newItem = {
+        name: name,
+        category: category,
+        content: itemArray
+      }
+
+      axios.post('http://localhost:3001/Create', newItem)
     }
 
 
@@ -93,9 +113,9 @@ function App() {
               setBeforeCurrentItem([]);
               setCurrentItem(items[item].name);
 
-              for(var a = 0; a < items[item].data.length; a++ ){
-                  var itemColor = divs[items[item].data[a].itemId].style.backgroundColor
-                  var itemId = items[item].data[a].itemId
+              for(var a = 0; a < items[item].content.length; a++ ){
+                  var itemColor = divs[items[item].content[a].itemId].style.backgroundColor
+                  var itemId = items[item].content[a].itemId
                   pixel = {itemId, itemColor}
                   array.push(pixel)
               }
@@ -108,7 +128,7 @@ function App() {
                 }
               }
 
-              setItemArray(items[item].data)
+              setItemArray(items[item].content)
       }
 
     }
@@ -117,11 +137,13 @@ function App() {
     //get items from localStorage
     function getItems(){
     var items = []
-    for (let i = 0; i < localStorage.length; i+= 1) {
-      const key = localStorage.key(i);
-      items.push({name:key, data: JSON.parse(localStorage.getItem(key))})
-    }
-    setItems(items)
+    fetch("/items").then(res => {
+        if(res.ok) {
+            return res.json()
+        }
+
+    }).then(jsonRes => setItems(jsonRes));
+
     }
 
 
@@ -179,45 +201,31 @@ function App() {
 
 // random crab
 function spawnCrab(){
-  setItemArray([])
+  setViewState(true);
   let randomItemsId = [];
   let randomItemsColor = [];
+  let randomItemsName = [];
 
-  var randomEyes = Math.floor(Math.random()*16777215).toString(16);
-  var randomBackground = Math.floor(Math.random()*16777215).toString(16);
-  var divs = document.getElementsByClassName('pixel');
   let numbers = [];
 
-  for(var n = 0; n < items.length; n++){
+  for(var n = 0; n < 8; n++){
     let number = Math.floor(Math.random() * items.length);
-    if(!numbers.includes(numbers)){
+    if(!numbers.includes(number)){
       numbers.push(number)
     }
   }
 
-  for(var l = 0; l < items.length; l++){
-    for(var i = 0; i < items[l].data.length; i++){
-      if(numbers.includes(l)){
-        randomItemsId.push(items[l].data[i].itemId)
-        randomItemsColor.push(items[l].data[i].itemColor)
-      }
+  for(var l = 0; l < numbers.length; l++){
+    for(var i = 0; i < items[numbers[l]].content.length; i++){
+        randomItemsId.push(items[numbers[l]].content[i].itemId)
+        randomItemsColor.push(items[numbers[l]].content[i].itemColor)
     }
+    randomItemsName.push(items[numbers[l]].name)
   }
-  setTimeout(function(){for (var i = 0; i < divs.length ; i += 1) {
 
-
-    staticCrab(divs[i], randomEyes, items, randomItemsId, randomItemsColor)
-
-    if(!staticCrabArray.includes(divs[i].id) && !randomItemsId.includes(divs[i].id)){
-    divs[i].style.backgroundColor = '#'+randomBackground;
-    }
-
-
-
-  }},1000)
-
-
+    setPreview64(staticCrab(randomItemsName,items, randomItemsId, randomItemsColor))
 }
+
 //set state to draw
 function drawstate(){
   setCopy(false)
@@ -233,40 +241,39 @@ function copystate(){
 
 function holdstate(){
   setHold(!hold)
-  }
-
-
+}
 
 function slide(e){
   var value = e.target.value
   setMultiplier(value)
 }
 
-
-function previewer(){
+function previewer(e){
   resetCanvas()
-    if(preview === false){
-      setPreview64(downloadCanvas())
-    }
-    setPreview(!preview)
+  setItemArray([])
+  if(e.target.value==="view"){
+    setViewState(true)
+  }else{
+    setViewState(false)
+  }
+
 }
+
+function setPreview(x){
+    setPreview64(x)
+}
+
+
   return (
-  <>
-  < Header />
   <div className="screen">
-
-  {preview && (
-    <PreviewerHTML slide={slide} previewer={previewer} multiplier={multiplier}/>
-  )}
-
-
-
-    <BuilderHTML pos={pos} getPos={getPos} applyBorder={applyBorder} randomEffect={randomEffect} previewer={previewer} holdstate={holdstate} setColorCall={setColorCall} spawnCrab={spawnCrab} Clear={Clear} downloadCanvas={downloadCanvas} saveItem={saveItem} items={items} addItem={addItem} color={color} setColor={setColor} drawstate={drawstate} copystate={copystate} setColorWithHex={setColorWithHex} />
-
-
+    <Router>
+    < Header previewer={previewer} />
+    <Routes>
+      <Route path={"/"} element={<Home multiplier={multiplier} slide={slide} spawnCrab={spawnCrab}/>}/>
+      <Route path={"/Create"} element={<Create pos={pos}  applyBorder={applyBorder} getPos={getPos} holdstate={holdstate} getColor={setColorCall} Clear={Clear} saveItem={saveItem} items={items} addItem={addItem} color={color} setColor={setColor} drawstate={drawstate} copystate={copystate} setColorWithHex={setColorWithHex} />} />
+    </Routes>
+    </Router>
   </div>
-  </>
-
   );
 }
 

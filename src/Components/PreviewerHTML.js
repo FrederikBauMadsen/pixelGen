@@ -1,7 +1,7 @@
 import CanvasEffects from './CanvasEffects.js'
 
 
-export default function PreviewerHTML({previewer,slide, multiplier}){
+export default function PreviewerHTML({slide, multiplier,spawnCrab}){
 
   function effect(){
     CanvasEffects(multiplier)
@@ -9,14 +9,14 @@ export default function PreviewerHTML({previewer,slide, multiplier}){
 
   return(
     <div className="preview">
-      <div className="relative">
         <div className="slider" id="slider">
           <input type="range" min="1" max="14" onChange={slide} />
         </div>
-          <button className="buttons" onClick={previewer}> Close </button>
+        <div className="functions">
+          <button className="buttons" name="crab" onClick={spawnCrab}> RANDOM CRAB </button>
           <button className="buttons" onClick={effect}> Smoothe Edges </button>
+        </div>
         <canvas id="canvas"></canvas>
-      </div>
     </div>
   )
 }

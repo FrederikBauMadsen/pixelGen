@@ -5,27 +5,28 @@ body,#root{
   scrollbar-width: none;  /* Firefox */
 }
 #canvas{
-  margin:1%;
+  margin:15px;
   image-rendering: crisp-edges;
 }
 
+.Builder{
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
 .preview{
-  z-index: 1;
-  position: fixed;
-  top:2.5vh;
-  left:2.5vw;
-  width:95vw;
-  height:95vh;
+  display: flex;
+
+  width:90vw;
+  height:80vh;
   background-color: white;
   border-radius:15px;
+  margin:18px;
   border: 9px solid #1338BE;
-}
-.relative{
-  position:relative;
 }
 
 #art{
-  display: table;
   height:calc(75vw*(9/16));
   width:70vw;
   border: 1px solid black;
@@ -50,13 +51,17 @@ body,#root{
 ::-webkit-scrollbar {
   display: none;
 }
+.artContain{
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
 .position{
-  position: absolute;
-  left:45%;
-  top:15%;
   font-size:30px;
+  margin: 9px;
 }
 .header{
+  width:100%;
   height:12vh;
   background-color: #1338BE;
   color:#E0AA3E;
@@ -67,7 +72,7 @@ body,#root{
   font-size:2vw;
 }
 .pixel{
-  border: 1px solid red;
+
   height:100%;
   width:1.5625%;
 }
@@ -83,12 +88,12 @@ body,#root{
   animation-fill-mode: forwards;         /* When the spec is finished */
 }
 .screen{
-  height:100%;
   width:100%;
+  height:100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 .r{
   height:1.5625%;
@@ -119,11 +124,6 @@ body,#root{
   justify-content: center;
   align-items: center;
   flex-direction: column;
-}
-.closePreview{
-  position: absolute;
-  top: 18%;
-  right: 6%;
 }
 .slider{
   position: absolute;
