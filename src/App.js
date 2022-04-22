@@ -1,134 +1,87 @@
 //imports
-import react, {useState, useEffect, useCallback } from 'react'
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom"
-import Home from './Components/Home.js'
-import Create from './Components/Create.js'
-import {white} from './figures.js'
-import downloadCanvas from './Components/downloadCanvas.js'
-import applyBorder from './Components/applyBorder.js'
+import react, {useState, useEffect, useCallback } from 'react';
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import Home from './Components/Home.js';
+import checkWhiteSpace from './Components/checkWhiteSpace.js';
+import hexToRgb from './Components/HexToRgb.js';
+import Create from './Components/Create.js';
+import downloadCanvas from './Components/downloadCanvas.js';
+import applyBorder from './Components/applyBorder.js';
 import './App.css';
 import Header from './Components/Header.js';
 import axios from "axios";
-import staticCrab from './Components/staticCrab.js'
-import setResize from './Components/imgPreviewer.js'
-import {staticCrabArray} from './crabConstants.js'
-import {resetCanvas} from './Components/Canvas.js'
-var savedArrays = [{}]
-var redoSavedArrays = [{}]
+import staticCrab from './Components/staticCrab.js';
+import setResize from './Components/imgPreviewer.js';
+import {staticCrabArray} from './crabConstants.js';
+import {resetCanvas} from './Components/Canvas.js';
+
 function App() {
 
-{/*  document.addEventListener("keyup", (event) => {
-        setTimeout(function(){
-          if (event.code === 'KeyZ' && (event.ctrlKey || event.metaKey)){
-            setItemArray(savedArrays[savedArrays.length-1])
-            redoSavedArrays.push(savedArrays[savedArrays.length-1])
-          }
-        },100)
-
-  }, { once: true })*/}
 
 
   //states
   const [color, setColor] = useState("#b32aa9");
-  const [itemArray, setItemArray] = useState([])
+  const [itemArray, setItemArray] = useState([]);
   const [items, setItems] = useState([{
       name:'',
       category:'',
       content:[]
-  }])
-
-  const [currentItem, setCurrentItem] = useState('none')
-  const [beforeCurrentItem, setBeforeCurrentItem] = useState([])
-  const [viewState, setViewState] = useState(false)
-  const [draw, setDraw] = useState(false)
-  const [copy, setCopy] = useState(false)
-  const [hold, setHold] = useState(false)
-  const [preview64, setPreview64] = useState(white)
-  //const [categories, setCategories] = useState([])
-  const [changed, setChanged] = useState(false)
-  const [pos, setPos] = useState('')
-  const [multiplier, setMultiplier] = useState(14)
-
-
-  const drawItemArray = useCallback(() => {
-    if(itemArray.length > 0){
-    for(var i = 0; i < itemArray.length; i++){
-      document.getElementById(itemArray[i].itemId).style.backgroundColor = itemArray[i].itemColor;
-    }
-  }
-  }, [itemArray])
-
+  }]);
+  const [currentItem, setCurrentItem] = useState('none');
+  const [beforeCurrentItem, setBeforeCurrentItem] = useState([]);
+  const [viewState, setViewState] = useState(false);
+  const [preview64, setPreview64] = useState();
+  const [charItems, setCharItems] = useState([]);
+  const [changed, setChanged] = useState(0);
+  const [pos, setPos] = useState('');
+  const [multiplier, setMultiplier] = useState(14);
+  const backgrounds = ['rgb(145,160,180)', 'rgb(201, 180, 253)', 'rgb(232, 231, 201)' , 'rgb(217, 165, 215)', 'rgb(176, 156, 156)', 'rgb(137, 194, 246)', 'rgb(175, 224, 159)'];
 
   useEffect(() => {
-
     if(viewState){
       setResize(multiplier, preview64)
-    }else{
-      setTimeout(drawItemArray(),1000)
     }
-
-
     setTimeout(function(){
       getItems()
-    }, 500)
-
-  },[drawItemArray, multiplier, preview64, changed]);
-
+    }, 200)
+  },[multiplier, preview64, changed]);
 
 
     function getPos(e){
-      if(draw && hold ){
-        let pixel = {itemId:e.target.id, itemColor:color}
-        setItemArray(itemArray => [...itemArray, pixel]);
-      }
-      let x = Math.trunc(e.target.id/64)
-      let y = e.target.id%64
-      setPos(x + ',' + y)
+      let x = Math.trunc(e.target.id/64);
+      let y = e.target.id%64;
+      setPos(x + ',' + y);
     }
 
 
     //save the current itemArray
-    function saveItem(e){
-      let name = prompt("Enter a name for the file", "");
-      let category = prompt("what category should the item be added to?", "");
-
+    function saveItem(name, category){
       const newItem = {
         name: name,
         category: category,
         content: itemArray
       }
-
-      axios.post('http://localhost:3001/Create', newItem)
+      axios.post('http://localhost:3001/Create', newItem);
     }
 
 
     //add the currently selected item to the canvas
     function addItem(){
+      setChanged(changed+1);
+
       var item = document.getElementById('itemSelect').value;
-      var divs = document.getElementsByClassName('pixel');
-      let pixel;
-      let array =[];
-
       if(currentItem !== items[item].name){
-              setBeforeCurrentItem([]);
-              setCurrentItem(items[item].name);
-
-              for(var a = 0; a < items[item].content.length; a++ ){
-                  var itemColor = divs[items[item].content[a].itemId].style.backgroundColor
-                  var itemId = items[item].content[a].itemId
-                  pixel = {itemId, itemColor}
-                  array.push(pixel)
-              }
-
-              setBeforeCurrentItem(array);
-
-              if(currentItem !== 'none'){
-                for(var i = 0; i<itemArray.length; i++){
-                  divs[itemArray[i].itemId].style.backgroundColor = beforeCurrentItem[i].itemColor
-                }
-              }
-
-              setItemArray(items[item].content)
+        debugger;
+        for(var a = 0; a < itemArray.length; a++){
+          document.getElementById(itemArray[a].itemId).style.backgroundColor = '';
+        }
+        setCurrentItem(items[item].name);
+        setItemArray(items[item].content);
+        for(var b = 0; b < items[item].content.length; b++ ){
+          document.getElementById(items[item].content[b].itemId).style.backgroundColor = items[item].content[b].itemColor;
+        }
+      }else{
+        return;
       }
 
     }
@@ -141,19 +94,16 @@ function App() {
         if(res.ok) {
             return res.json()
         }
-
-    }).then(jsonRes => setItems(jsonRes));
-
+    }).then(jsonRes => setItems(jsonRes))
     }
 
 
   //clear canvas to white
   function Clear(){
-    savedArrays = []
     setItemArray([])
     var divs = document.getElementsByClassName('pixel');
       for (var i = 0; i < divs.length; i++){
-      divs[i].style.backgroundColor = 'rgb(255, 255, 255)'
+      divs[i].style.backgroundColor = ''
   }
   }
 
@@ -163,32 +113,36 @@ function App() {
   function setColorCall(e){
     var array = []
     var arraynum = []
-    setChanged(false);
     let pixel = {itemId:e.target.id, itemColor:color}
-    if(copy){  setColor(document.getElementById(e.target.id).style.backgroundColor)}
 
-    for(var i = 0; i < itemArray.length; i+=1){
-      array.push({itemId:itemArray[i].itemId, itemColor:itemArray[i].itemColor })
-      arraynum.push(itemArray[i].itemId)
-    }
+        for(var i = 0; i < itemArray.length; i+=1){
+          array.push({itemId:itemArray[i].itemId, itemColor:itemArray[i].itemColor })
+          arraynum.push(itemArray[i].itemId)
+        }
 
-    if(draw){
-    if(arraynum.includes(e.target.id)){
-      var n = arraynum.indexOf(e.target.id)
-      if(itemArray[n].itemColor !== color){
-        itemArray[n].itemColor = color
-        setChanged(true);
+      if(pixel.itemColor === ''){
+        if(arraynum.includes(e.target.id)){
+          array.splice(arraynum.indexOf(e.target.id),1);
+          setItemArray(array);
+        }else{
+          return;
+        }
+      }else{
+        if(arraynum.includes(e.target.id)){
+          var n = arraynum.indexOf(e.target.id)
+          if(array[n].itemColor !== color){
+            array[n].itemColor = color
+            setItemArray(array);
+          }else{
+            return;
+          }
+        }else{
+          array.push(pixel);
+          setItemArray(array);
 
+        }
       }
-    }else{
-      setItemArray(itemArray => [...itemArray, pixel]);
-      setChanged(true);
 
-    }
-  }
-    if(array.length > 0 && changed){
-      savedArrays.push(array)
-    }
   }
 
   //set color state using hex color value
@@ -197,14 +151,43 @@ function App() {
   }
 
 
-
+// 0.5 opacity Char
+function spawnChar(){
+  Clear();
+  var div = document.getElementById('art');
+  var divs = div.getElementsByTagName('div');
+  for (var i = 0; i < divs.length; i += 1) {
+    if(staticCrabArray.includes(divs[i].id)){
+      divs[i].style.backgroundColor = 'rgba(0,0,0,0.5)';
+    }
+  }
+}
 
 // random crab
 function spawnCrab(){
+
+  window.scroll({
+  top: 200,
+  left: 100,
+  behavior: 'smooth'
+});
+  setCharItems([])
   setViewState(true);
+  const random = Math.floor(Math.random() * backgrounds.length);
+  const background = backgrounds[random];
+  let object = {};
+  let objectArray = [];
   let randomItemsId = [];
   let randomItemsColor = [];
   let randomItemsName = [];
+  let randomCategories = [];
+
+  let categories = []
+  for(var c = 0; c < items.length; c++){
+    if(!categories.includes(items[c].category)){
+      categories.push(items[c].category)
+    }
+  }
 
   let numbers = [];
 
@@ -216,31 +199,47 @@ function spawnCrab(){
   }
 
   for(var l = 0; l < numbers.length; l++){
+    let itemsId = [];
+    let itemsColor = [];
+    if(!randomCategories.includes(items[numbers[l]].category)){
     for(var i = 0; i < items[numbers[l]].content.length; i++){
+      if(items[numbers[l]].content[i].itemColor.charAt(0) === '#'){
+        let array = hexToRgb(items[numbers[l]].content[i].itemColor);
+        let string = 'rgb(' + array[0] + ',' + array[1] + ',' + array[2] + ')';
+        itemsId.push(items[numbers[l]].content[i].itemId)
         randomItemsId.push(items[numbers[l]].content[i].itemId)
+        itemsColor.push(string)
+        randomItemsColor.push(string)
+      }
+      else if(checkWhiteSpace(items[numbers[l]].content[i].itemColor)){
+        let noWhiteSpace = items[numbers[l]].content[i].itemColor.replaceAll(" ", "");
+        itemsId.push(items[numbers[l]].content[i].itemId)
+        randomItemsId.push(items[numbers[l]].content[i].itemId)
+        itemsColor.push(noWhiteSpace)
+        randomItemsColor.push(noWhiteSpace)
+      }
+      else{
+        itemsId.push(items[numbers[l]].content[i].itemId)
+        randomItemsId.push(items[numbers[l]].content[i].itemId)
+        itemsColor.push(items[numbers[l]].content[i].itemColor)
         randomItemsColor.push(items[numbers[l]].content[i].itemColor)
+      }
     }
-    randomItemsName.push(items[numbers[l]].name)
+      randomCategories.push(items[numbers[l]].category)
+      randomItemsName.push(items[numbers[l]].name)
+      object =
+      {
+        name: items[numbers[l]].name,
+        category: items[numbers[l]].category,
+        itemId: itemsId,
+        itemColor: itemsColor
+      }
+      objectArray.push(object);
+    }
   }
 
-    setPreview64(staticCrab(randomItemsName,items, randomItemsId, randomItemsColor))
-}
-
-//set state to draw
-function drawstate(){
-  setCopy(false)
-  setDraw(true)
-}
-
-
-//set state to copy
-function copystate(){
-  setCopy(true)
-  setDraw(false)
-}
-
-function holdstate(){
-  setHold(!hold)
+    setCharItems(objectArray);
+    setPreview64(staticCrab(randomItemsName, items,randomCategories, background, objectArray));
 }
 
 function slide(e){
@@ -269,8 +268,8 @@ function setPreview(x){
     <Router>
     < Header previewer={previewer} />
     <Routes>
-      <Route path={"/"} element={<Home multiplier={multiplier} slide={slide} spawnCrab={spawnCrab}/>}/>
-      <Route path={"/Create"} element={<Create pos={pos}  applyBorder={applyBorder} getPos={getPos} holdstate={holdstate} getColor={setColorCall} Clear={Clear} saveItem={saveItem} items={items} addItem={addItem} color={color} setColor={setColor} drawstate={drawstate} copystate={copystate} setColorWithHex={setColorWithHex} />} />
+      <Route path={"/"} element={<Home multiplier={multiplier} slide={slide} spawnCrab={spawnCrab} charItems={charItems}/>}/>
+      <Route path={"/Create"} element={<Create spawnChar={spawnChar} pos={pos}  applyBorder={applyBorder} getPos={getPos} getColor={setColorCall} Clear={Clear} saveItem={saveItem} items={items} addItem={addItem} color={color} setColor={setColor} setColorWithHex={setColorWithHex} />} />
     </Routes>
     </Router>
   </div>
