@@ -114,7 +114,6 @@ function hexToRgb(hex) {
       }
 
       if(itemsInclude){
-        debugger;
         let r;
         let g;
         let b;
