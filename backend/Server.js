@@ -11,6 +11,6 @@ mongoose.connect("mongodb+srv://username:keklolkek@items.igz5x.mongodb.net/Chara
 
 app.use("/", require("./routes/itemRoute"))
 
-app.listen(3001, function(){
-    console.log("express server is running port 3001")
+app.listen(3002, function(){
+    console.log("express server is running port 3002")
 })
