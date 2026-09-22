@@ -151,9 +151,10 @@ function App() {
     Clear();
     let div = document.getElementById("art");
     let divs = div?.getElementsByTagName("div");
+    const staticCrabSet = new Set(staticCrabArray);
     if (divs)
       for (const element of divs) {
-        if (staticCrabArray.includes(element.id)) {
+        if (staticCrabSet.has(element.id)) {
           element.style.backgroundColor = "rgba(0,0,0,0.5)";
         }
       }

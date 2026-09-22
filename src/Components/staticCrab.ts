@@ -98,14 +98,32 @@ export default function staticCrab({
 
   var eyes = random_rgb();
 
+  // Build lookup sets once instead of scanning arrays for every pixel
+  const outlineSet = new Set(crabOutline);
+  const meatSet = new Set(crabMeat);
+  const eyesGreySet = new Set(crabEyesGrey);
+  const eyesBlackSet = new Set(crabEyesBlack);
+  const eyesWhiteSet = new Set(crabEyesWhite);
+  const eyesColorSet = new Set(crabEyesColor);
+  const mouthSet = new Set(crabMouth);
+  const staticCrabSet = new Set(staticCrabArray);
+  // First occurrence wins, matching the previous indexOf behaviour
+  const layerColorById = new Map<string, string>();
+  for (let n = 0; n < layersID.length; n++) {
+    if (!layerColorById.has(layersID[n])) {
+      layerColorById.set(layersID[n], layersColors[n]);
+    }
+  }
+
   let rows = [];
   let array = [];
   let ids = [];
 
   for (var i = 0; i < 4096; i++) {
-    let itemsInclude = layersID.includes(i.toString());
+    const id = i.toString();
+    let itemsInclude = layerColorById.has(id);
 
-    if (crabOutline.includes(i.toString()) && !itemsInclude) {
+    if (outlineSet.has(id) && !itemsInclude) {
       if (golden) {
         array.push("rgb(218,165,32)");
       } else {
@@ -113,7 +131,7 @@ export default function staticCrab({
       }
       ids.push(i);
     }
-    if (crabMeat.includes(i.toString()) && !itemsInclude) {
+    if (meatSet.has(id) && !itemsInclude) {
       if (golden) {
         array.push("rgb(255,215,0)");
       } else {
@@ -122,45 +140,40 @@ export default function staticCrab({
 
       ids.push(i);
     }
-    if (crabEyesGrey.includes(i.toString()) && !itemsInclude) {
+    if (eyesGreySet.has(id) && !itemsInclude) {
       array.push("rgb(211,211,211)");
       ids.push(i);
     }
-    if (crabEyesBlack.includes(i.toString()) && !itemsInclude) {
+    if (eyesBlackSet.has(id) && !itemsInclude) {
       array.push("rgb(1,0,1)");
       ids.push(i);
     }
-    if (crabEyesWhite.includes(i.toString()) && !itemsInclude) {
+    if (eyesWhiteSet.has(id) && !itemsInclude) {
       array.push("rgb(254,254,254)");
       ids.push(i);
     }
-    if (crabEyesColor.includes(i.toString()) && !itemsInclude) {
+    if (eyesColorSet.has(id) && !itemsInclude) {
       array.push(eyes);
       ids.push(i);
     }
-    if (crabMouth.includes(i.toString()) && !itemsInclude) {
+    if (mouthSet.has(id) && !itemsInclude) {
       array.push("rgb(254,254,254)");
       ids.push(i);
     }
 
     if (itemsInclude) {
-      let r;
-      let g;
-      let b;
-      if (layersColors[layersID.indexOf(i.toString())].charAt(0) === "#") {
-        r = hexToRgb(layersColors[layersID.indexOf(i.toString())]).r;
-        g = hexToRgb(layersColors[layersID.indexOf(i.toString())]).g;
-        b = hexToRgb(layersColors[layersID.indexOf(i.toString())]).b;
-        let rgb = "rgb(" + r + "," + g + "," + b + ")";
-        array.push(rgb);
+      const layerColor = layerColorById.get(id) as string;
+      if (layerColor.charAt(0) === "#") {
+        const { r, g, b } = hexToRgb(layerColor);
+        array.push("rgb(" + r + "," + g + "," + b + ")");
         ids.push(i);
       } else {
-        array.push(layersColors[layersID.indexOf(i.toString())]);
+        array.push(layerColor);
         ids.push(i);
       }
     }
 
-    if (!staticCrabArray.includes(i.toString()) && !itemsInclude) {
+    if (!staticCrabSet.has(id) && !itemsInclude) {
       array.push(background);
       ids.push(i);
     }

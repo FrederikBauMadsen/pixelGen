@@ -15,7 +15,7 @@ export default function createParticle({
   stage,
 }: CreateParticleProps) {
   let array = [];
-  let arrayPos: number[] = [];
+  const seenPos = new Set<number>();
 
   //size should be 6,8,10,12 so on
   if (effectName == "stars") {
@@ -40,9 +40,8 @@ export default function createParticle({
         let pos = Math.round(pixel + x * pixelSpace + y * columns);
         let remainder = pos % 4;
         let newPos = pos - remainder;
-        if (arrayPos.includes(newPos)) {
-          arrayPos.slice(arrayPos.length, 1);
-        } else {
+        if (!seenPos.has(newPos)) {
+          seenPos.add(newPos);
           array.push({
             pixel: newPos,
             r: 211 - y * 12,
@@ -50,7 +49,6 @@ export default function createParticle({
             b: 55 - y * 12,
           });
         }
-        arrayPos.push(newPos);
       }
     }
   } else {
@@ -76,9 +74,7 @@ export default function createParticle({
         let remainder = pos % 4;
         let newPos = pos - remainder;
         if (y < 0 && Math.abs(x) < 9) {
-          if (arrayPos.includes(newPos)) {
-            arrayPos.slice(arrayPos.length, 1);
-          } else {
+          if (!seenPos.has(newPos)) {
             if (
               (y === -1 && Math.abs(x) > 2) ||
               (y === -2 && Math.abs(x) > 3) ||
@@ -125,7 +121,7 @@ export default function createParticle({
            b:0+(Math.abs(y)*(random*0.5553))+(Math.abs(x)*(random*0.5553)),
          });
          */
-              arrayPos.push(newPos);
+              seenPos.add(newPos);
             }
           }
         }

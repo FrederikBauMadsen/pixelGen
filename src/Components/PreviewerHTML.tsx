@@ -1,5 +1,5 @@
 import SelectItem, { resetborder } from "./SelectItem.ts";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import applyEffect from "./applyEffect.ts";
 import { CharItem } from "../Interfaces/interfaces.ts";
 
@@ -19,11 +19,13 @@ export default function PreviewerHTML({
   const [listcolor, setListcolor] = useState<JSX.Element[] | null>(null);
   const [selectedColors, setSelectedColors] = useState<string[] | null>(null);
   //const timer = ms => new Promise(res => setTimeout(res, ms));
-  let listcategory = charItems.map((item, index) => (
-    <div key={1 + " " + index}> {item.category} </div>
-  ));
-  let listname = charItems.map((item, index) => (
-    <div key={1 + " " + index}> {item.name} </div>
+  const charItemList = charItems.map((item) => (
+    <Fragment key={item.category + " " + item.name}>
+      <div className="itemCategory"> {item.category} </div>
+      <div className="itemName" onClick={itemSelect}>
+        {item.name}
+      </div>
+    </Fragment>
   ));
   let selectedColorsArray: string[] = [];
 
@@ -152,47 +154,7 @@ export default function PreviewerHTML({
         </div>
       </div>
       <canvas id="canvas"></canvas>
-      <div className="functions charItemsContainer">
-        <div className="itemCategory">{listcategory[0]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[0]}
-        </div>
-
-        <div className="itemCategory">{listcategory[1]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[1]}
-        </div>
-
-        <div className="itemCategory">{listcategory[2]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[2]}
-        </div>
-
-        <div className="itemCategory">{listcategory[3]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[3]}
-        </div>
-
-        <div className="itemCategory">{listcategory[4]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[4]}
-        </div>
-
-        <div className="itemCategory">{listcategory[5]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[5]}
-        </div>
-
-        <div className="itemCategory">{listcategory[6]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[6]}
-        </div>
-
-        <div className="itemCategory">{listcategory[7]}</div>
-        <div className="itemName" onClick={itemSelect}>
-          {listname[7]}
-        </div>
-      </div>
+      <div className="functions charItemsContainer">{charItemList}</div>
     </div>
   );
 }
